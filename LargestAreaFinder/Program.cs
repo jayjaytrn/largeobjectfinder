@@ -8,8 +8,8 @@ namespace LargestAreaFinder
     {
         static void Main(string[] args)
         {
-            Compare compare = new Compare();
-            compare.Runner();
+            ImageWorker image = new ImageWorker();
+            image.X("D:/test.bmp");
         }
     }
 }

@@ -7,7 +7,10 @@ namespace LargestAreaFinder
 {
     class Compare
     {
-        public List<Coordinates> LargestArea = new List<Coordinates>();
+        public static List<Coordinates> CheckedColors = new List<Coordinates>();
+        public static List<Coordinates> UncheckedColors = new List<Coordinates>();
+        public static List<Coordinates> CurrentArea = new List<Coordinates>();
+        public static List<Coordinates> LargestArea = new List<Coordinates>();
         public bool CompareColors(string initialColor, string comparedColor)
         {
             return (initialColor.Equals(comparedColor));
@@ -18,14 +21,18 @@ namespace LargestAreaFinder
 
             Coordinates coordinates = new Coordinates();
             List<Coordinates> coordinatesAround = coordinates.CoordinatesAround(array, currentCoordinates);
-
             foreach (Coordinates crds in coordinatesAround)
             {
                 var compare = CompareColors(array[currentCoordinates.x, currentCoordinates.y].ColorName, array[crds.x, crds.y].ColorName);
-                if (!LargestArea.Contains(crds) && compare)
+                if (!CurrentArea.Contains(crds) && compare)
                 {
                     sameColorsCoordinates.Add(crds);
+                    UncheckedColors.Remove(crds);
                 }
+            }
+            if (sameColorsCoordinates.Count == 0)
+            {
+                UncheckedColors.Remove(currentCoordinates);
             }
             return sameColorsCoordinates;
         }
@@ -34,24 +41,59 @@ namespace LargestAreaFinder
             foreach (Coordinates crds in startCoordinates)
             {
                 var nextColorsForCheck = CompareColorsAround(crds, array);
-                LargestArea = LargestArea.Union(nextColorsForCheck).ToList();
-                var allCoordinates = FindAllSameColors(nextColorsForCheck, array);
-            }
-            return LargestArea;
+                if (nextColorsForCheck.Count == 0)
+                {
+                    CurrentArea = CurrentArea.Union(startCoordinates).ToList();
+                }
+                else
+                {
+                    CurrentArea = CurrentArea.Union(nextColorsForCheck).ToList();
+                    FindAllSameColors(nextColorsForCheck, array);
+                }
+            } 
+            return CurrentArea;
         }
-        public void Runner()
+        public void InitUncheckedColors(Pixel[,] array)
+        {
+            foreach (Pixel pixel in array)
+            {
+                UncheckedColors.Add(pixel.Coords);
+            }
+        }
+        public List<Coordinates> GetLargestArea()
         {
             ImageWorker imgWorker = new ImageWorker();
-            var bmp = imgWorker.GetImage("E:/test.bmp");
+            var bmp = imgWorker.GetImage("D:/test.bmp");
             var pixels = imgWorker.GetPixelArray(bmp);
-
             Compare compare = new Compare();
+            InitUncheckedColors(pixels);
+
             Coordinates coordinates = new Coordinates(0, 0);
             List<Coordinates> startingCoordinates = new List<Coordinates>();
             startingCoordinates.Add(coordinates);
-            var x = compare.FindAllSameColors(startingCoordinates, pixels);
-            Console.WriteLine(x.Count);
-            Console.ReadLine();
+            while (CheckedColors.Count < (pixels.GetLength(0) * pixels.GetLength(1)))
+            {
+                var oneColor = FindAllSameColors(startingCoordinates, pixels);
+
+                try
+                {
+                    startingCoordinates.Clear();
+                    Coordinates crdNew = UncheckedColors.First();
+                    startingCoordinates.Add(crdNew);
+                }
+                catch(InvalidOperationException e)
+                {
+                }
+                
+                if (oneColor.Count > LargestArea.Count)
+                {
+                    LargestArea.Clear();
+                    LargestArea = LargestArea.Union(CurrentArea).ToList();
+                }
+                CheckedColors = CheckedColors.Union(CurrentArea).ToList();
+                CurrentArea.Clear();
+            }
+            return LargestArea;
         }
     }
 }

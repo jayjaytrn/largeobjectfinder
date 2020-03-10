@@ -8,12 +8,10 @@ namespace LargestAreaFinder.Model
     {
         public int x { get; set; }
         public int y { get; set; }
-        public bool IsCheckked { get; set; }
         public Coordinates(int _x, int _y)
         {
             this.x = _x;
             this.y = _y;
-            IsCheckked = false;
         }
         public bool IsItBorderline(Pixel[,] pixels, Coordinates currentCoordinates, Coordinates nextCoordinates)
         {
