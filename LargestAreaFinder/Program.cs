@@ -9,7 +9,7 @@ namespace LargestAreaFinder
         static void Main(string[] args)
         {
             ImageWorker image = new ImageWorker();
-            image.X("D:/test.bmp");
+            image.GetLargestAreaAsImage("D:/test.bmp", "D:/largest.bmp");
         }
     }
 }

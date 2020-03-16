@@ -36,7 +36,7 @@ namespace LargestAreaFinder
             }
             return sameColorsCoordinates;
         }
-        public List<Coordinates> FindAllSameColors(List<Coordinates> startCoordinates, Pixel[,] array)
+        public List<Coordinates> GetSameColorsArea(List<Coordinates> startCoordinates, Pixel[,] array)
         {
             foreach (Coordinates crds in startCoordinates)
             {
@@ -48,7 +48,7 @@ namespace LargestAreaFinder
                 else
                 {
                     CurrentArea = CurrentArea.Union(nextColorsForCheck).ToList();
-                    FindAllSameColors(nextColorsForCheck, array);
+                    GetSameColorsArea(nextColorsForCheck, array);
                 }
             } 
             return CurrentArea;
@@ -60,12 +60,12 @@ namespace LargestAreaFinder
                 UncheckedColors.Add(pixel.Coords);
             }
         }
-        public List<Coordinates> GetLargestArea()
+        public List<Coordinates> GetLargestArea(string path)
         {
             ImageWorker imgWorker = new ImageWorker();
-            var bmp = imgWorker.GetImage("D:/test.bmp");
+            var bmp = imgWorker.GetImage(path);
             var pixels = imgWorker.GetPixelArray(bmp);
-            Compare compare = new Compare();
+ 
             InitUncheckedColors(pixels);
 
             Coordinates coordinates = new Coordinates(0, 0);
@@ -73,7 +73,7 @@ namespace LargestAreaFinder
             startingCoordinates.Add(coordinates);
             while (CheckedColors.Count < (pixels.GetLength(0) * pixels.GetLength(1)))
             {
-                var oneColor = FindAllSameColors(startingCoordinates, pixels);
+                var oneColor = GetSameColorsArea(startingCoordinates, pixels);
 
                 try
                 {

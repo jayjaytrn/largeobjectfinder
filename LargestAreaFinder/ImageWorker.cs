@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Text;
 using LargestAreaFinder.Model;
 
@@ -13,12 +14,6 @@ namespace LargestAreaFinder
         {
             var image = new Bitmap(path);
             return image;
-        }
-        public Bitmap CloneBitmap(string path)
-        {
-            var bitmap = GetImage(path);
-            Bitmap cloneBitmap = (Bitmap)bitmap.Clone();
-            return cloneBitmap;
         }
         public Pixel[,] GetPixelArray(Bitmap bitmap)
         {
@@ -38,20 +33,23 @@ namespace LargestAreaFinder
             }
             return array;
         }
-        public void X(string path)
+        public void GetLargestAreaAsImage(string initialPath, string pathToSaveLargestArea)
         {
-            var cloneBitmap = CloneBitmap(path);
+            var bitmap = new Bitmap(initialPath);
 
-            var resultImage = new Bitmap(cloneBitmap.Width, cloneBitmap.Height);
+            var resultImage = new Bitmap(bitmap.Width, bitmap.Height);
 
             Compare compare = new Compare();
-            var largestArea = compare.GetLargestArea();
+            var largestArea = compare.GetLargestArea(initialPath);
 
-            foreach (Coordinates crds in largestArea)
-            {
-                resultImage.SetPixel(crds.x, crds.y, cloneBitmap.GetPixel(crds.x, crds.y));
-            }
-            resultImage.Save("D:/testtest.png", ImageFormat.Png);
+            //foreach (Coordinates crds in largestArea)
+            //{
+            //    resultImage.SetPixel(crds.x, crds.y, bitmap.GetPixel(crds.x, crds.y));
+            //}
+            largestArea.AsParallel()
+            .ForAll(crds => resultImage.SetPixel(crds.x, crds.y, bitmap.GetPixel(crds.x, crds.y)));
+
+            //resultImage.Save(pathToSaveLargestArea, ImageFormat.Png);
         }
     }
 }
